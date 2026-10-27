@@ -2,6 +2,24 @@
  "schemaVersion": 3,
  "payloads": [
   {
+   "payloadId": "r0q-S906EXXSEGZH4",
+   "displayName": "Galaxy S22+ (Snapdragon, LatAm) | Kernel 5.10.236",
+   "models": [
+    "SM-S906E"
+   ],
+   "kernelVersions": [
+    "5.10.236"
+   ],
+   "exploit": {
+    "url": "https://raw.githubusercontent.com/LuisPanezo/Root-My-Galaxy-Payloads-CDZIF/main/artifacts/r0q-S906EXXSEGZH4/cve-2026-43499-app.so",
+    "size": 104128
+   },
+   "kernelsu": {
+    "url": "https://raw.githubusercontent.com/LuisPanezo/Root-My-Galaxy-Payloads-CDZIF/main/kernelsu/ksud-r0q-S906EXXSEGZH4-kdp",
+    "size": 4865880
+   }
+  },
+  {
    "payloadId": "pa3q-S938USQUCDZIF",
    "displayName": "Galaxy S25 Ultra (US) | Kernel 6.6.127",
    "models": [
