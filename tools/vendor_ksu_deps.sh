@@ -31,39 +31,13 @@ tar xzf prop-rs-android.tgz -C prop-rs-android --strip-components=1
 tar xzf rustix.tgz -C rustix --strip-components=1
 tar xzf kernlog.tgz -C kernlog --strip-components=1
 
-# adb_client and android-bootimg crate manifests inherit fields from their
-# own workspaces; cargo does not resolve that inheritance for path
-# dependencies of a foreign workspace, so materialize it.
-python3 - <<'PYEOF'
-from pathlib import Path
-
-
-def materialize(path: Path, replacements):
-    data = path.read_text()
-    changed = False
-    for old, new in replacements.items():
-        if old in data:
-            data = data.replace(old, new)
-            changed = True
-    if changed:
-        path.write_text(data)
-        print("materialized", path)
-
-
-materialize(Path("adb_client/adb_client/Cargo.toml"), {
-    'version.workspace = true': 'version = "3.1.1"',
-    'edition.workspace = true': 'edition = "2021"',
-    'authors.workspace = true': '',
-    'keywords.workspace = true': '',
-    'license.workspace = true': '',
-    'repository.workspace = true': '',
-    'rust-version.workspace = true': '',
-})
-materialize(Path("android_bootimg/android-bootimg/Cargo.toml"), {
-    'version.workspace = true': 'version = "0.1.0"',
-    'edition.workspace = true': 'edition = "2024"',
-})
-PYEOF
+# Path dependencies of a foreign workspace cannot use [workspace]
+# inheritance; materialize package/dependency inheritance from each dep's
+# own workspace root (adb_client, android-bootimg).
+python3 "$GITHUB_WORKSPACE/tools/materialize_workspace.py" \
+  adb_client/adb_client/Cargo.toml adb_client/Cargo.toml
+python3 "$GITHUB_WORKSPACE/tools/materialize_workspace.py" \
+  android_bootimg/android-bootimg/Cargo.toml android_bootimg/Cargo.toml
 
 export DEPS
 export KSUD_DIR
