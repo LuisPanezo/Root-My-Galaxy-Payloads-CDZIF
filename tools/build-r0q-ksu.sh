@@ -59,7 +59,11 @@ NDKBIN="$HOME/$NDK_VERSION/toolchains/llvm/prebuilt/linux-x86_64/bin"
 cp kernel/kernelsu.ko "userspace/ksud/bin/aarch64/${KMI}_kernelsu.ko"
 
 # 4. vendor ksud git deps (registry/network quirks) and build
-rustup target add aarch64-linux-android
+# pin the toolchain to the version the payload repo maintains (rust-embed's
+# derive output breaks on older rustc)
+rustup toolchain install 1.99.1 --profile minimal
+rustup target add aarch64-linux-android --toolchain 1.99.1
+export RUSTUP_TOOLCHAIN=1.99.1
 cd userspace/ksud
 bash "$GITHUB_WORKSPACE/tools/vendor_ksu_deps.sh" "$PWD"
 rm -f ../../Cargo.lock
