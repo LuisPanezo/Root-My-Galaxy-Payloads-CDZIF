@@ -31,15 +31,26 @@ tar xzf prop-rs-android.tgz -C prop-rs-android --strip-components=1
 tar xzf rustix.tgz -C rustix --strip-components=1
 tar xzf kernlog.tgz -C kernlog --strip-components=1
 
-# adb_client's crate manifest inherits version/edition/etc. from a workspace
-# root that does not define them; materialize the inheritance so the crate
-# works as a plain path dependency from a foreign workspace.
+# adb_client and android-bootimg crate manifests inherit fields from their
+# own workspaces; cargo does not resolve that inheritance for path
+# dependencies of a foreign workspace, so materialize it.
 python3 - <<'PYEOF'
 from pathlib import Path
 
-manifest = Path("adb_client/adb_client/Cargo.toml")
-data = manifest.read_text()
-replacements = {
+
+def materialize(path: Path, replacements):
+    data = path.read_text()
+    changed = False
+    for old, new in replacements.items():
+        if old in data:
+            data = data.replace(old, new)
+            changed = True
+    if changed:
+        path.write_text(data)
+        print("materialized", path)
+
+
+materialize(Path("adb_client/adb_client/Cargo.toml"), {
     'version.workspace = true': 'version = "3.1.1"',
     'edition.workspace = true': 'edition = "2021"',
     'authors.workspace = true': '',
@@ -47,11 +58,11 @@ replacements = {
     'license.workspace = true': '',
     'repository.workspace = true': '',
     'rust-version.workspace = true': '',
-}
-for old, new in replacements.items():
-    data = data.replace(old, new)
-manifest.write_text(data)
-print("adb_client manifest materialized")
+})
+materialize(Path("android_bootimg/android-bootimg/Cargo.toml"), {
+    'version.workspace = true': 'version = "0.1.0"',
+    'edition.workspace = true': 'edition = "2024"',
+})
 PYEOF
 
 export DEPS
