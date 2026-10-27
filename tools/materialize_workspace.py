@@ -41,6 +41,14 @@ def main() -> None:
     out_lines = []
     for line in crate.splitlines():
         stripped = line.strip()
+        # [lints] with lints.workspace = true: lints are optional metadata;
+        # drop the section and the inheritance line entirely
+        if stripped == "[lints]":
+            changed.append("dropped [lints] section")
+            continue
+        if stripped == "lints.workspace = true":
+            changed.append("dropped lints.workspace")
+            continue
         match = re.match(r'^([A-Za-z0-9_-]+)\.workspace\s*=\s*true\s*$', stripped)
         if match:
             key = match.group(1)
