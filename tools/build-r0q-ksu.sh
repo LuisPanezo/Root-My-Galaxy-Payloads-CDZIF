@@ -78,6 +78,6 @@ cargo build --release --target aarch64-linux-android -p ksud
 
 OUT="$GITHUB_WORKSPACE/ksu-artifacts"
 mkdir -p "$OUT"
-cp target/aarch64-linux-android/release/ksud "$OUT/ksud-${TARGET}-kdp"
-cp userspace/ksud/bin/aarch64/${KMI}_kernelsu.ko "$OUT/${KMI}_kernelsu-${TARGET}-kdp.ko"
+cp "$WS/KernelSU/target/aarch64-linux-android/release/ksud" "$OUT/ksud-${TARGET}-kdp"
+cp "$WS/KernelSU/userspace/ksud/bin/aarch64/${KMI}_kernelsu.ko" "$OUT/${KMI}_kernelsu-${TARGET}-kdp.ko"
 ls -la "$OUT"
