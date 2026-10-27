@@ -38,6 +38,10 @@ python3 "$GITHUB_WORKSPACE/tools/materialize_workspace.py" \
   adb_client/adb_client/Cargo.toml adb_client/Cargo.toml
 python3 "$GITHUB_WORKSPACE/tools/materialize_workspace.py" \
   android_bootimg/android-bootimg/Cargo.toml android_bootimg/Cargo.toml
+python3 "$GITHUB_WORKSPACE/tools/materialize_workspace.py" \
+  prop-rs-android/crates/prop-rs-android/Cargo.toml prop-rs-android/Cargo.toml
+python3 "$GITHUB_WORKSPACE/tools/materialize_workspace.py" \
+  prop-rs-android/crates/prop-rs/Cargo.toml prop-rs-android/Cargo.toml
 
 export DEPS
 export KSUD_DIR
