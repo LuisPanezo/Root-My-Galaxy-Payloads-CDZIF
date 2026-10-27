@@ -34,6 +34,12 @@ def main() -> None:
     crate = crate_path.read_text()
     root = root_path.read_text()
 
+    # collapse multiline inline tables to one line so the line-based
+    # materializer sees `key = { workspace = true }` as a single entry
+    crate = re.sub(r"\{([^{}]*)\}",
+                   lambda m: "{ " + " ".join(m.group(1).split()) + " }",
+                   crate)
+
     ws_package = parse_tomlish(root, "workspace.package")
     ws_deps = parse_tomlish(root, "workspace.dependencies")
 
@@ -56,6 +62,13 @@ def main() -> None:
                 out_lines.append(f"{key} = {ws_package[key]}")
                 changed.append(f"{key}.workspace -> literal")
                 continue
+            # optional metadata without a workspace definition: drop it
+            if key in ("authors", "keywords", "license", "repository",
+                       "rust-version", "homepage", "documentation",
+                       "categories", "exclude", "include", "publish"):
+                changed.append(f"dropped {key}.workspace")
+                continue
+            raise SystemExit(f"unresolvable inheritance: {stripped!r}")
         dep_match = re.match(
             r'^([A-Za-z0-9_-]+)\s*=\s*\{\s*workspace\s*=\s*true(.*)\}\s*$', stripped)
         if dep_match:
