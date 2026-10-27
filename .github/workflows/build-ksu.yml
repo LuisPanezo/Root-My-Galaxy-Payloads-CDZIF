@@ -1,0 +1,61 @@
+name: build-ksu-pair
+
+on:
+  workflow_dispatch:
+    inputs:
+      kernel_release:
+        description: exact target `uname -r`
+        required: true
+        default: 5.10.236-android12-9-31998796-abS906EXXSEGZH4
+      target:
+        description: profile id
+        required: true
+        default: r0q-S906EXXSEGZH4
+      kmi:
+        description: asset KMI name
+        required: true
+        default: android12-5.10
+      ddk_image:
+        description: ddk-min image tag
+        required: true
+        default: ghcr.io/ylarod/ddk-min:android12-5.10-20260828
+      vmlinux_tag:
+        description: release tag holding vmlinux.elf (empty = skip audit)
+        required: false
+        default: analysis-s906e
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch recovered vmlinux for the audit
+        if: inputs.vmlinux_tag != ''
+        run: |
+          gh release download "${{ inputs.vmlinux_tag }}" \
+            --repo "$GITHUB_REPOSITORY" --pattern 'vmlinux.elf' --output vmlinux.elf
+          ls -la vmlinux.elf
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Build kernelsu.ko + ksud
+        env:
+          KERNEL_RELEASE: ${{ inputs.kernel_release }}
+          TARGET: ${{ inputs.target }}
+          KMI: ${{ inputs.kmi }}
+          DDK_IMAGE: ${{ inputs.ddk_image }}
+          VMLINUX: ${{ github.workspace }}/vmlinux.elf
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq lz4 jq >/dev/null
+          bash tools/build-r0q-ksu.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ksu-${{ inputs.target }}
+          path: ksu-artifacts/*
+          if-no-files-found: error
