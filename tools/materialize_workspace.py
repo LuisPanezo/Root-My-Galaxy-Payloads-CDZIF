@@ -45,15 +45,20 @@ def main() -> None:
 
     changed = []
     out_lines = []
+    in_lints_section = False
     for line in crate.splitlines():
         stripped = line.strip()
-        # [lints] with lints.workspace = true: lints are optional metadata;
-        # drop the section and the inheritance line entirely
-        if stripped == "[lints]":
-            changed.append("dropped [lints] section")
+        # [lints] sections with `workspace = true`: lints are optional
+        # metadata inherited via table form; drop until the next section
+        if stripped.startswith("["):
+            in_lints_section = stripped == "[lints]"
+            if in_lints_section:
+                changed.append("dropped [lints] section")
+            out_lines.append(line)
             continue
-        if stripped == "lints.workspace = true":
-            changed.append("dropped lints.workspace")
+        if in_lints_section:
+            if stripped == "workspace = true":
+                changed.append("dropped lints workspace = true")
             continue
         match = re.match(r'^([A-Za-z0-9_-]+)\.workspace\s*=\s*true\s*$', stripped)
         if match:
