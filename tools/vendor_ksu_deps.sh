@@ -31,6 +31,29 @@ tar xzf prop-rs-android.tgz -C prop-rs-android --strip-components=1
 tar xzf rustix.tgz -C rustix --strip-components=1
 tar xzf kernlog.tgz -C kernlog --strip-components=1
 
+# adb_client's crate manifest inherits version/edition/etc. from a workspace
+# root that does not define them; materialize the inheritance so the crate
+# works as a plain path dependency from a foreign workspace.
+python3 - <<'PYEOF'
+from pathlib import Path
+
+manifest = Path("adb_client/adb_client/Cargo.toml")
+data = manifest.read_text()
+replacements = {
+    'version.workspace = true': 'version = "3.1.1"',
+    'edition.workspace = true': 'edition = "2021"',
+    'authors.workspace = true': '',
+    'keywords.workspace = true': '',
+    'license.workspace = true': '',
+    'repository.workspace = true': '',
+    'rust-version.workspace = true': '',
+}
+for old, new in replacements.items():
+    data = data.replace(old, new)
+manifest.write_text(data)
+print("adb_client manifest materialized")
+PYEOF
+
 export DEPS
 export KSUD_DIR
 python3 - <<'PYEOF'
