@@ -32,6 +32,7 @@ tar xzf rustix.tgz -C rustix --strip-components=1
 tar xzf kernlog.tgz -C kernlog --strip-components=1
 
 export DEPS
+export KSUD_DIR
 python3 - <<'PYEOF'
 import os
 from pathlib import Path
