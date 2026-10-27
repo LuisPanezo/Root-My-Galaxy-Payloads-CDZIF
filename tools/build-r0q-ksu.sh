@@ -66,7 +66,9 @@ rustup target add aarch64-linux-android --toolchain 1.99.1
 export RUSTUP_TOOLCHAIN=1.99.1
 cd userspace/ksud
 bash "$GITHUB_WORKSPACE/tools/vendor_ksu_deps.sh" "$PWD"
-rm -f ../../Cargo.lock
+# keep the upstream Cargo.lock: it pins rust-embed 8.11.0 / flate2 1.1.9
+# (newer rust-embed derives break the build); cargo only rewrites the
+# entries whose dependency kind changed to path.
 export PATH="$NDKBIN:$HOME/.cargo/bin:$PATH"
 export LIBCLANG_PATH="$HOME/$(basename "${NDK_VERSION:-android-ndk-r28b}")/toolchains/llvm/prebuilt/linux-x86_64/lib"
 export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="$NDKBIN/aarch64-linux-android35-clang"
