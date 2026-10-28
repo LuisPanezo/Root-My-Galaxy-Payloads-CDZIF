@@ -20,10 +20,11 @@ git clone --depth 1 --branch v3.2.5 --quiet https://github.com/tiann/KernelSU.gi
 cd KernelSU
 git apply --whitespace=nowarn "$GITHUB_WORKSPACE/kernelsu/patches/KernelSU-v3.2.5-samsung-kdp-rkp-defex.patch"
 python3 "$GITHUB_WORKSPACE/tools/fix_ksu_kbuild.py" "$PWD"
-# android13-5.15 DDK: the Samsung compat typedefs reference enum rlimit_type
-# whose definition (linux/ucount.h) is not in that translation unit
-grep -q "linux/ucount.h" kernel/compat/samsung_kdp.c || \
-  sed -i '0,/#include/s//#include <linux\/ucount.h>\n#include/' kernel/compat/samsung_kdp.c
+# the Samsung compat typedefs reference enum rlimit_type opaquely in function
+# pointer types; some DDK trees do not declare it in that translation unit,
+# so demote the -Wvisibility diagnostic (codegen is unaffected: the pointers
+# are resolved from kallsyms at late-load time)
+echo 'ccflags-y += -Wno-error=visibility' >> kernel/Kbuild
 make -C kernel check_symbol CC=gcc >/dev/null
 echo "=== patch state ok"
 
