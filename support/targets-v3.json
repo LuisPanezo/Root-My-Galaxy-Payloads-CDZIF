@@ -2,6 +2,24 @@
  "schemaVersion": 3,
  "payloads": [
   {
+   "payloadId": "dm3q-S918USQU8GZIF",
+   "displayName": "Galaxy S23 Ultra (Snapdragon, US) | Kernel 5.15.197",
+   "models": [
+    "SM-S918U"
+   ],
+   "kernelVersions": [
+    "5.15.197"
+   ],
+   "exploit": {
+    "url": "https://raw.githubusercontent.com/LuisPanezo/Root-My-Galaxy-Payloads-CDZIF/main/artifacts/dm3q-S918USQU8GZIF/cve-2026-43499-app.so",
+    "size": 104128
+   },
+   "kernelsu": {
+    "url": "https://raw.githubusercontent.com/LuisPanezo/Root-My-Galaxy-Payloads-CDZIF/main/kernelsu/ksud-dm3q-S918USQU8GZIF-kdp",
+    "size": 4878040
+   }
+  },
+  {
    "payloadId": "r0q-S906EXXSEGZH4",
    "displayName": "Galaxy S22+ (Snapdragon, LatAm) | Kernel 5.10.236",
    "models": [
