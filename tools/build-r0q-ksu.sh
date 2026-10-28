@@ -20,10 +20,11 @@ git clone --depth 1 --branch v3.2.5 --quiet https://github.com/tiann/KernelSU.gi
 cd KernelSU
 git apply --whitespace=nowarn "$GITHUB_WORKSPACE/kernelsu/patches/KernelSU-v3.2.5-samsung-kdp-rkp-defex.patch"
 python3 "$GITHUB_WORKSPACE/tools/fix_ksu_kbuild.py" "$PWD"
-# android13-5.15 DDK: enum rlimit_type (UCOUNT_RLIMIT_NPROC) lives in
-# linux/user_namespace.h on this tree; the Samsung compat unit needs it
+# android13-5.15 DDK: the rlimit ucounts enum is `enum ucount_type` declared
+# in linux/user_namespace.h (6.x trees call it rlimit_type in ucount.h)
 grep -q "linux/user_namespace.h" kernel/compat/samsung_kdp.c || \
   sed -i '0,/#include/s//#include <linux\/user_namespace.h>\n#include/' kernel/compat/samsung_kdp.c
+sed -i 's/enum rlimit_type/enum ucount_type/g' kernel/compat/samsung_kdp.c
 # the Samsung compat typedefs reference enum rlimit_type opaquely in function
 # pointer types; some DDK trees do not declare it in that translation unit,
 # so demote the -Wvisibility diagnostic (codegen is unaffected: the pointers
